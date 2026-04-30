@@ -1,1 +1,5 @@
-<Solution />
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TaskManager.Api/TaskManager.Api.csproj" Id="a5c373db-f5f7-40de-8304-8b2958d6854d" />
+  </Folder>
+</Solution>
