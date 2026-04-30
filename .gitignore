@@ -1,0 +1,21 @@
+# Artifacts
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Secrets
+.env
+secrets.json
+appsettings.Local.json
+appsettings.*.local.json
+
+# Diagnostics
+TestResults/
+*.log
+
+# Windows
+Thumbs.db
