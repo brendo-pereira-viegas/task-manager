@@ -7,31 +7,31 @@ public sealed class TaskItem(Title title, Description description)
     public Description Description { get; private set; } = description;
     public TaskItemStatus Status { get; private set; } = TaskItemStatus.Pending;
 
-    public void ChangeTitle(Title title) => Title = Title = title;
+    public void ChangeTitle(Title title) => Title = title;
 
     public void ChangeDescription(Description description) => Description = description;
 
-    public void ChangeStatus(TaskItemStatus next)
-    {
-        TransitionTo(Status, next);
-        Status = next;
-    }
-
-    private static void TransitionTo(TaskItemStatus current, TaskItemStatus next)
-    {
-        if (current == next) return;
-
-        bool isValidTrnsition = (current, next) switch
+    public void SetInProgress() =>
+        Status = Status switch
         {
-            (TaskItemStatus.Pending, TaskItemStatus.InProgress) => true,
-            (TaskItemStatus.InProgress, TaskItemStatus.Completed) => true,
-            (TaskItemStatus.Pending, TaskItemStatus.Cancelled) => true,
-            (TaskItemStatus.InProgress, TaskItemStatus.Cancelled) => true,
-            (_, TaskItemStatus.Pending) => true,
-            _ => false
+            TaskItemStatus.InProgress => Status,
+            TaskItemStatus.Pending => TaskItemStatus.InProgress,
+            _ => throw new InvalidOperationException($"Cannot start task from {Status}.")
         };
 
-        if (!isValidTrnsition)
-            throw new InvalidOperationException($"Invalid state transition from: {current} to {next}.");
-    }
+    public void Complete() =>
+        Status = Status switch
+        {
+            TaskItemStatus.Completed => Status,
+            TaskItemStatus.InProgress => TaskItemStatus.Completed,
+            _ => throw new InvalidOperationException($"Cannot complete task from {Status}.")
+        };
+
+    public void Cancel() =>
+        Status = Status switch
+        {
+            TaskItemStatus.Cancelled => Status,
+            TaskItemStatus.Pending or TaskItemStatus.InProgress => TaskItemStatus.Cancelled,
+            _ => throw new InvalidOperationException("Cannot cancel a completed task.")
+        };
 }
