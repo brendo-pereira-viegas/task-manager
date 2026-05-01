@@ -13,16 +13,15 @@ public sealed class TaskItem(Title title, Description description)
 
     public void ChangeStatus(TaskItemStatus next)
     {
-        if (Status == next) return;
-
-        if (!IsValidTransition(Status, next))
-            throw new InvalidOperationException($"Invalid state transition from: {Status} to {next}.");
-
+        TransitionTo(Status, next);
         Status = next;
     }
 
-    private static bool IsValidTransition(TaskItemStatus current, TaskItemStatus next) =>
-        (current, next) switch
+    private static void TransitionTo(TaskItemStatus current, TaskItemStatus next)
+    {
+        if (current == next) return;
+
+        bool isValidTrnsition = (current, next) switch
         {
             (TaskItemStatus.Pending, TaskItemStatus.InProgress) => true,
             (TaskItemStatus.InProgress, TaskItemStatus.Completed) => true,
@@ -31,4 +30,8 @@ public sealed class TaskItem(Title title, Description description)
             (_, TaskItemStatus.Pending) => true,
             _ => false
         };
+
+        if (!isValidTrnsition)
+            throw new InvalidOperationException($"Invalid state transition from: {current} to {next}.");
+    }
 }
