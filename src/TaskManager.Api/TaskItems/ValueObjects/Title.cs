@@ -1,14 +1,21 @@
 ﻿namespace TaskManager.Api.TaskItems.ValueObjects;
 
-public readonly record struct Title
+public sealed record Title
 {
+    public const int MaxLength = 100;
+
     public string Value { get; }
 
     public Title(string value)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(value);
-        Value = value;
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException("Title is required.", nameof(value));
+
+        if (value.Length > MaxLength)
+            throw new ArgumentException($"Title length cannot exceed {MaxLength} characters.", nameof(value));
+
+        Value = value.Trim();
     }
 
-    public static implicit operator string(Title title) => title.Value;
+    public static explicit operator string(Title title) => title.Value;
 }

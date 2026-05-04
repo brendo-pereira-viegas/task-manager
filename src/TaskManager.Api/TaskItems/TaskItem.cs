@@ -1,37 +1,58 @@
 ﻿namespace TaskManager.Api.TaskItems;
 
-public sealed class TaskItem(Title title, Description description)
+public sealed class TaskItem
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
-    public Title Title { get; private set; } = title;
-    public Description Description { get; private set; } = description;
-    public TaskItemStatus Status { get; private set; } = TaskItemStatus.Pending;
+    public Guid Id { get; }
+    public Title Title { get; private set; }
+    public Description Description { get; private set; }
+    public TaskItemStatus Status { get; private set; }
 
-    public void ChangeTitle(Title title) => Title = title;
+    public TaskItem(Title title, Description description)
+    {
+        ArgumentNullException.ThrowIfNull(title);
+        ArgumentNullException.ThrowIfNull(description);
 
-    public void ChangeDescription(Description description) => Description = description;
+        Id = Guid.NewGuid();
+        Title = title;
+        Description = description;
+        Status = TaskItemStatus.Pending;
+    }
 
-    public void SetInProgress() =>
-        Status = Status switch
-        {
-            TaskItemStatus.InProgress => Status,
-            TaskItemStatus.Pending => TaskItemStatus.InProgress,
-            _ => throw new InvalidOperationException($"Cannot start task from {Status}.")
-        };
+    public void ChangeTitle(Title title)
+    {
+        ArgumentNullException.ThrowIfNull(title);
+        Title = title;
+    }
 
-    public void Complete() =>
-        Status = Status switch
-        {
-            TaskItemStatus.Completed => Status,
-            TaskItemStatus.InProgress => TaskItemStatus.Completed,
-            _ => throw new InvalidOperationException($"Cannot complete task from {Status}.")
-        };
+    public void ChangeDescription(Description description)
+    {
+        ArgumentNullException.ThrowIfNull(description);
+        Description = description;
+    }
 
-    public void Cancel() =>
-        Status = Status switch
-        {
-            TaskItemStatus.Cancelled => Status,
-            TaskItemStatus.Pending or TaskItemStatus.InProgress => TaskItemStatus.Cancelled,
-            _ => throw new InvalidOperationException("Cannot cancel a completed task.")
-        };
+    public void InProgress()
+    {
+        EnsureValidTransition(TaskItemStatus.InProgress, Status is TaskItemStatus.Pending);
+        Status = TaskItemStatus.InProgress;
+    }
+
+    public void Complete()
+    {
+        EnsureValidTransition(TaskItemStatus.Completed, Status is TaskItemStatus.InProgress);
+        Status = TaskItemStatus.Completed;
+    }
+
+    public void Cancel()
+    {
+        EnsureValidTransition(TaskItemStatus.Cancelled, Status is TaskItemStatus.Pending or TaskItemStatus.InProgress);
+        Status = TaskItemStatus.Cancelled;
+    }
+
+    private void EnsureValidTransition(TaskItemStatus targetStatus, bool isValidState)
+    {
+        if (Status == targetStatus) return;
+
+        if (!isValidState)
+            throw new InvalidOperationException($"Cannot transition from {Status} to {targetStatus}.");
+    }
 }
