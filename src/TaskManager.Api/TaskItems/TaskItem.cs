@@ -32,27 +32,36 @@ public sealed class TaskItem
 
     public void InProgress()
     {
-        EnsureValidTransition(TaskItemStatus.InProgress, Status is TaskItemStatus.Pending);
+        ThrowIfInvalidTransition(
+            TaskItemStatus.InProgress,
+            Status is TaskItemStatus.Pending);
+
         Status = TaskItemStatus.InProgress;
     }
 
     public void Complete()
     {
-        EnsureValidTransition(TaskItemStatus.Completed, Status is TaskItemStatus.InProgress);
+        ThrowIfInvalidTransition(
+            TaskItemStatus.Completed,
+            Status is TaskItemStatus.InProgress);
+
         Status = TaskItemStatus.Completed;
     }
 
     public void Cancel()
     {
-        EnsureValidTransition(TaskItemStatus.Cancelled, Status is TaskItemStatus.Pending or TaskItemStatus.InProgress);
+        ThrowIfInvalidTransition(
+            TaskItemStatus.Cancelled,
+            Status is TaskItemStatus.Pending or TaskItemStatus.InProgress);
+
         Status = TaskItemStatus.Cancelled;
     }
 
-    private void EnsureValidTransition(TaskItemStatus targetStatus, bool isValidState)
+    private void ThrowIfInvalidTransition(TaskItemStatus targetStatus, bool canTransition)
     {
         if (Status == targetStatus) return;
 
-        if (!isValidState)
+        if (!canTransition)
             throw new InvalidOperationException($"Cannot transition from {Status} to {targetStatus}.");
     }
 }

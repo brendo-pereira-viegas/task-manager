@@ -8,14 +8,12 @@ public sealed record Description
 
     public Description(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Description is required.", nameof(value));
-
-        if (value.Length > MaxLength)
-            throw new ArgumentException($"Description length cannot exceed {MaxLength} characters.", nameof(value));
-
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(value.Length, MaxLength);
         Value = value.Trim();
     }
+
+    public override string ToString() => Value;
 
     public static explicit operator string(Description description) => description.Value;
 }

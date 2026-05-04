@@ -8,14 +8,12 @@ public sealed record Title
 
     public Title(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Title is required.", nameof(value));
-
-        if (value.Length > MaxLength)
-            throw new ArgumentException($"Title length cannot exceed {MaxLength} characters.", nameof(value));
-
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(value.Length, MaxLength);
         Value = value.Trim();
     }
+
+    public override string ToString() => Value;
 
     public static explicit operator string(Title title) => title.Value;
 }
