@@ -1,8 +1,8 @@
 ﻿namespace TaskManager.Api.Extensions;
 
-public static class WebApplicationExtensions
+internal static class WebApplicationExtensions
 {
-    public static WebApplication UseOpenApi(this WebApplication app)
+    internal static WebApplication UseOpenApi(this WebApplication app)
     {
         if (app.Environment.IsDevelopment())
         {
